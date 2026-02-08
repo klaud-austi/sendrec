@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SendRec - Screen Recording for Privacy-First Teams</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+            background: linear-gradient(180deg, #fafbfc 0%, #f0f4f8 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid #e1e8ed;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo::before {
+            content: "◉";
+            color: #059669;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ecfdf5;
+            color: #059669;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-left: 12px;
+            border: 1px solid #a7f3d0;
+        }
+
+        .badge::before {
+            content: "🛡️";
+        }
+
+        main {
+            padding: 80px 0;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .subhead {
+            font-size: 20px;
+            color: #64748b;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+
+        .feature {
+            background: #ffffff;
+            padding: 28px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .feature:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .feature h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .feature p {
+            font-size: 15px;
+            color: #64748b;
+        }
+
+        .cta-section {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 48px;
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .cta-section h2 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .cta-section p {
+            color: #94a3b8;
+            margin-bottom: 32px;
+        }
+
+        .waitlist-form {
+            display: flex;
+            gap: 12px;
+            max-width: 420px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .waitlist-form input[type="email"] {
+            flex: 1;
+            min-width: 240px;
+            padding: 14px 18px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background: #1e293b;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .waitlist-form input[type="email"]::placeholder {
+            color: #64748b;
+        }
+
+        .waitlist-form input[type="email"]:focus {
+            border-color: #059669;
+        }
+
+        .waitlist-form button {
+            padding: 14px 28px;
+            background: #059669;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .waitlist-form button:hover {
+            background: #047857;
+        }
+
+        .waitlist-form button:disabled {
+            background: #334155;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            color: #34d399;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error-message {
+            color: #f87171;
+            font-weight: 500;
+            display: none;
+            margin-top: 12px;
+        }
+
+        .code-section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .code-section h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .code-section p {
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+
+        pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 24px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .comment { color: #64748b; }
+        .command { color: #34d399; }
+        .arg { color: #60a5fa; }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #64748b;
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        footer a {
+            color: #059669;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 32px;
+            }
+            
+            .subhead {
+                font-size: 18px;
+            }
+            
+            .cta-section {
+                padding: 32px 24px;
+            }
+            
+            .waitlist-form input[type="email"] {
+                width: 100%;
+            }
+            
+            .waitlist-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">
+                SendRec
+                <span class="badge">GDPR Ready</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="hero">
+                <h1>Screen Recording for Privacy-First Teams</h1>
+                <p class="subhead">GDPR-compliant. EU-hosted. Open source.</p>
+            </section>
+
+            <section class="features">
+                <div class="feature">
+                    <div class="feature-icon">🇪🇺</div>
+                    <h3>EU Storage Only</h3>
+                    <p>All recordings stored exclusively on EU servers. Full data sovereignty for European teams.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚫</div>
+                    <h3>No US Servers</h3>
+                    <p>Zero data transfer to US jurisdictions. No CLOUD Act exposure. Pure European compliance.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🏠</div>
+                    <h3>Self-Hostable</h3>
+                    <p>Deploy on your own infrastructure. Full source code available. Complete control.</p>
+                </div>
+            </section>
+
+            <section class="cta-section">
+                <h2>Join the Waitlist</h2>
+                <p>Be the first to access privacy-first screen recording</p>
+                <form class="waitlist-form" id="waitlistForm">
+                    <input type="email" id="emailInput" placeholder="Enter your email" required>
+                    <button type="submit" id="submitBtn">Join Waitlist</button>
+                </form>
+                <p class="success-message" id="successMessage">✓ You're on the list! We'll be in touch soon.</p>
+                <p class="error-message" id="errorMessage"></p>
+            </section>
+
+            <section class="code-section">
+                <h2>Self-Host in Minutes</h2>
+                <p>Deploy your own instance with a single command</p>
+                <pre><code><span class="comment"># Clone the repository</span>
+<span class="command">git</span> <span class="arg">clone</span> https://github.com/sendrec/sendrec.git
+<span class="command">cd</span> sendrec
+
+<span class="comment"># Start with Docker Compose</span>
+<span class="command">docker-compose</span> <span class="arg">up</span> -d
+
+<span class="comment"># SendRec is now running on localhost:8080</span></code></pre>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Open source under AGPL-3.0 · <a href="#">GitHub</a> · <a href="#">Documentation</a></p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('emailInput').value;
+            const button = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Reset messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+            
+            // Disable button during request
+            button.disabled = true;
+            button.textContent = 'Joining...';
+            
+            try {
+                const response = await fetch('/waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Show success
+                    button.textContent = 'Joined!';
+                    successMessage.style.display = 'block';
+                    document.getElementById('emailInput').value = '';
+                    
+                    // Reset button after 3 seconds
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.textContent = 'Join Waitlist';
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    // Show error
+                    button.disabled = false;
+                    button.textContent = 'Join Waitlist';
+                    errorMessage.textContent = data.message || 'Something went wrong. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                button.disabled = false;
+                button.textContent = 'Join Waitlist';
+                errorMessage.textContent = 'Network error. Please try again.';
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

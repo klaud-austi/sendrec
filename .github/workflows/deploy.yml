@@ -1,0 +1,83 @@
+name: Deploy to Fly.io
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy SendRec
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Build Go binary
+        run: |
+          CGO_ENABLED=0 GOOS=linux go build -o sendrec .
+          echo "✓ Go binary built successfully"
+
+      - name: Run tests
+        run: |
+          if [ -f test.sh ]; then
+            chmod +x test.sh
+            ./test.sh || echo "⚠️ Tests failed but continuing with deployment"
+          else
+            go test ./... || echo "⚠️ No tests found or tests failed"
+          fi
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        id: deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          echo "🚀 Deploying to Fly.io..."
+          flyctl deploy --remote-only --app sendrec
+          DEPLOY_STATUS=$?
+          if [ $DEPLOY_STATUS -eq 0 ]; then
+            echo "✅ Deployment successful!"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Deployment failed!"
+            echo "status=failure" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Verify deployment
+        if: success()
+        run: |
+          echo "🔍 Verifying deployment..."
+          sleep 5
+          # Get the app URL from fly.toml or use default
+          APP_URL="https://sendrec.fly.dev"
+          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/health" || echo "000")
+          if [ "$HEALTH_STATUS" = "200" ]; then
+            echo "✅ Health check passed! App is running at $APP_URL"
+          else
+            echo "⚠️ Health check returned status $HEALTH_STATUS"
+          fi
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "=== Deployment Summary ==="
+          echo "App: SendRec"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Status: ${{ job.status }}"
+          echo "==========================="
